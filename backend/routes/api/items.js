@@ -40,6 +40,11 @@ router.get("/", auth.optional, function(req, res, next) {
   var query = {};
   var limit = 100;
   var offset = 0;
+  var titleFilter = "";
+
+  if (typeof req.query.title !== "undefined") {
+    titleFilter =  {$regex: req.query.title, $options: 'i' };
+  }
 
   if (typeof req.query.limit !== "undefined") {
     limit = req.query.limit;
@@ -61,6 +66,10 @@ router.get("/", auth.optional, function(req, res, next) {
       var seller = results[0];
       var favoriter = results[1];
 
+      if (titleFilter) {
+        query.title = titleFilter;
+      }
+      
       if (seller) {
         query.seller = seller._id;
       }
