@@ -3,11 +3,9 @@ package main
 import (
 	"net/http"
 	"github.com/gin-gonic/gin"
-	"sync"
 )
 
 var items []Item
-var mu sync.Mutex
 
 func main() {
 	items = []Item{
@@ -33,7 +31,7 @@ func greet(c *gin.Context) {
 }
 
 type Item struct {
-    ID   int    `json:"id" uri:"id" binding:"required"`
+    ID   int    `json:"id" uri:"id" `
     Name string `json:"name"`
 	ViewCount int `json:"-"`
 }
@@ -56,9 +54,7 @@ func getSingleItem(c *gin.Context) {
 		return
 	}
 
-	mu.Lock()
 	singleItem := findItemById(&items, input.ID)
-	mu.Unlock()
 
 	if singleItem == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No item found"})
@@ -69,16 +65,11 @@ func getSingleItem(c *gin.Context) {
 		singleItem.ViewCount = singleItem.ViewCount + 1
 	}()
 
-	
 	c.IndentedJSON(http.StatusOK, singleItem)
 }
 
 func addItem(c *gin.Context) {
-	mu.Lock()
-
 	lastItem := items[len(items)-1]
-
-	mu.Unlock()
 
 	var newItem Item
 
@@ -89,9 +80,7 @@ func addItem(c *gin.Context) {
 
 	newItem.ID = lastItem.ID + 1
 
-	mu.Lock()
 	items = append(items, newItem)
-	mu.Unlock()
 
 	c.IndentedJSON(http.StatusOK, newItem)
 }
