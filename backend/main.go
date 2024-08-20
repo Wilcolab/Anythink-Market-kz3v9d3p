@@ -19,6 +19,7 @@ func main() {
 	router := gin.Default()
 	router.GET("/", greet)
 	router.GET("/items/:id", getSingleItem)
+	router.GET("/items/popular", getPopularItem)
 	router.GET("/items", getItems)
 	router.POST("/items", addItem)
 	router.HEAD("/healthcheck", healthcheck)
@@ -43,6 +44,30 @@ func findItemById(items *[]Item, id int) *Item {
 		}
 	}
 	return nil
+}
+
+func findPopularItem() *Item {
+	var maxViewCount int
+	var popularItem *Item
+
+	for i := range items {
+		if items[i].ViewCount > maxViewCount {
+			maxViewCount = items[i].ViewCount
+			popularItem = &items[i]
+		}
+	}
+
+	return popularItem
+}
+
+func getPopularItem(c *gin.Context) {
+	popularItem := findPopularItem()
+	if popularItem == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No popular items found"})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, popularItem)
 }
 
 func getSingleItem(c *gin.Context) {
