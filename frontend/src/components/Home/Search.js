@@ -13,8 +13,8 @@ const Search = (props) => {
         } else {
             props.onSearch(
                 "",
-                (page) => agent.Items.byTitle("", page),
-                agent.Items.byTitle("")
+                (page) => agent.Items.all(page),
+                agent.Items.all()
             );
         }
     };
