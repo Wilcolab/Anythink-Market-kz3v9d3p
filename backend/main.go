@@ -21,23 +21,23 @@ func greet(c *gin.Context) {
 func items(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, []map[string]interface{}{
 		{
-			"id": 0,
+			"id": 1,
 			"name":"Galactic Goggles",
 		},
 		{
-			"id": 1,
+			"id": 2,
 			"name":"Meteor Muffins",
 		},
 		{
-			"id": 2,
+			"id": 3,
 			"name":"Alien Antenna Kit",
 		},
 		{
-			"id": 3,
+			"id": 4,
 			"name":"Starlight Lantern",
 		},
 		{
-			"id": 4,
+			"id": 5,
 			"name":"Quantum Quill",
 		},
 	})
