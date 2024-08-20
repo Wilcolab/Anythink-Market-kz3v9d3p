@@ -70,29 +70,35 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 const MainView = (props) => {
+  const empty = props.isSearch && props.itemsCount <= 0;
   return (
     <div>
-      <div className="feed-toggle">
-        <ul className="nav nav-tabs">
-          <YourFeedTab
-            token={props.token}
-            tab={props.tab}
-            onTabClick={props.onTabClick}
+      {!empty ? (
+        <>
+          <div className="feed-toggle">
+            <ul className="nav nav-tabs">
+              <YourFeedTab
+                token={props.token}
+                tab={props.tab}
+                onTabClick={props.onTabClick}
+              />
+              <GlobalFeedTab tab={props.tab} onTabClick={props.onTabClick} />
+              <TagFilterTab tag={props.tag} />
+            </ul>
+          </div>
+          <ItemList
+            pager={props.pager}
+            items={props.items}
+            loading={props.loading}
+            itemsCount={props.itemsCount}
+            currentPage={props.currentPage}
           />
-
-          <GlobalFeedTab tab={props.tab} onTabClick={props.onTabClick} />
-
-          <TagFilterTab tag={props.tag} />
-        </ul>
-      </div>
-
-      <ItemList
-        pager={props.pager}
-        items={props.items}
-        loading={props.loading}
-        itemsCount={props.itemsCount}
-        currentPage={props.currentPage}
-      />
+        </>
+      ) : (
+        <div id="empty">
+          <p>No items found...</p>
+        </div>
+      )}
     </div>
   );
 };

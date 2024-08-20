@@ -56,6 +56,7 @@ const reducer = (state = {}, action) => {
           tab: null,
           tag: action.tag,
           currentPage: 0,
+          isSearch: true
         };
     case HOME_PAGE_LOADED:
       return {

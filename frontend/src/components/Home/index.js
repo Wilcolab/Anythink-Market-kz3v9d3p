@@ -48,7 +48,7 @@ const Home = ({onLoad, onUnload, tags, onClickTag, onSearch}) => {
 
         <div className="container page">
           <Tags tags={tags} onClickTag={onClickTag}/>
-          <MainView />
+          <MainView/>
         </div>
       </div>
     );
