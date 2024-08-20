@@ -3,9 +3,11 @@ package main
 import (
 	"net/http"
 	"github.com/gin-gonic/gin"
+	"sync"
 )
 
 var items []Item
+var mu sync.Mutex
 
 func main() {
 	items = []Item{
@@ -18,6 +20,7 @@ func main() {
 
 	router := gin.Default()
 	router.GET("/", greet)
+	router.GET("/item/:id", getSingleItem)
 	router.GET("/items", getItems)
 	router.POST("/items", addItem)
 	router.HEAD("/healthcheck", healthcheck)
@@ -30,12 +33,52 @@ func greet(c *gin.Context) {
 }
 
 type Item struct {
-    ID   int    `json:"id"`
+    ID   int    `json:"id" uri:"id" binding:"required"`
     Name string `json:"name"`
+	ViewCount int `json:"-"`
+}
+
+func findItemById(items *[]Item, id int) *Item {
+	for i := range *items {
+		if (*items)[i].ID == id {
+			return &(*items)[i]
+		}
+	}
+	return nil
+}
+
+func getSingleItem(c *gin.Context) {
+
+	var input Item
+
+	if err := c.BindUri(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	mu.Lock()
+	singleItem := findItemById(&items, input.ID)
+	mu.Unlock()
+
+	if singleItem == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No item found"})
+		return
+	}
+
+	go func() {
+		singleItem.ViewCount = singleItem.ViewCount + 1
+	}()
+
+	
+	c.IndentedJSON(http.StatusOK, singleItem)
 }
 
 func addItem(c *gin.Context) {
+	mu.Lock()
+
 	lastItem := items[len(items)-1]
+
+	mu.Unlock()
 
 	var newItem Item
 
@@ -46,7 +89,10 @@ func addItem(c *gin.Context) {
 
 	newItem.ID = lastItem.ID + 1
 
+	mu.Lock()
 	items = append(items, newItem)
+	mu.Unlock()
+
 	c.IndentedJSON(http.StatusOK, newItem)
 }
 
