@@ -18,6 +18,7 @@ func main() {
 
 	router := gin.Default()
 	router.GET("/", greet)
+	router.GET("/items/:id", getSingleItem)
 	router.GET("/items", getItems)
 	router.POST("/items", addItem)
 	router.HEAD("/healthcheck", healthcheck)
@@ -30,8 +31,41 @@ func greet(c *gin.Context) {
 }
 
 type Item struct {
-    ID   int    `json:"id"`
+    ID   int    `json:"id" uri:"id" `
     Name string `json:"name"`
+	ViewCount int `json:"-"`
+}
+
+func findItemById(items *[]Item, id int) *Item {
+	for i := range *items {
+		if (*items)[i].ID == id {
+			return &(*items)[i]
+		}
+	}
+	return nil
+}
+
+func getSingleItem(c *gin.Context) {
+
+	var input Item
+
+	if err := c.BindUri(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	singleItem := findItemById(&items, input.ID)
+
+	if singleItem == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No item found"})
+		return
+	}
+
+	go func() {
+		singleItem.ViewCount = singleItem.ViewCount + 1
+	}()
+
+	c.IndentedJSON(http.StatusOK, singleItem)
 }
 
 func addItem(c *gin.Context) {
@@ -47,6 +81,7 @@ func addItem(c *gin.Context) {
 	newItem.ID = lastItem.ID + 1
 
 	items = append(items, newItem)
+
 	c.IndentedJSON(http.StatusOK, newItem)
 }
 
