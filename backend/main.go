@@ -18,7 +18,7 @@ func main() {
 
 	router := gin.Default()
 	router.GET("/", greet)
-	router.GET("/item/:id", getSingleItem)
+	router.GET("/items/:id", getSingleItem)
 	router.GET("/items", getItems)
 	router.POST("/items", addItem)
 	router.HEAD("/healthcheck", healthcheck)
